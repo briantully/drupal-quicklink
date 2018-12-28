@@ -13,7 +13,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 function quicklink_preprocess_html(&$variables, $hook) {
 
   // Load current configuration.
-  $config = \Drupal::config('quicklink.quicklinkconfig');
+  $config = \Drupal::config('quicklink.settings');
   $selector = $config->get('selector');
 
   // Get debug variable.
@@ -21,7 +21,7 @@ function quicklink_preprocess_html(&$variables, $hook) {
   $debug_log = [];
 
   // Load the library unless we disable later.
-  $load_library = true;
+  $load_library = TRUE;
 
   if (file_exists(DRUPAL_ROOT . '/libraries/quicklink/dist/quicklink.umd.js')) {
     $quicklink_library = 'quicklink/quicklink_local';
@@ -32,10 +32,11 @@ function quicklink_preprocess_html(&$variables, $hook) {
     $debug_log[] = 'Local copy of quicklink library NOT detected. Will use CDN copy.';
   }
 
-  $url_patterns_to_ignore =  ['user/logout']; // Always ignore the logout link.
+  // Always ignore the logout link.
+  $url_patterns_to_ignore = ['user/logout'];
   $debug_log[] = 'Quicklink will ignore "user/logout" URL pattern.';
 
-  $allowed_domains =  [];
+  $allowed_domains = [];
 
   // Populate and remove line returns from URL patterns to ignore.
   foreach (explode(PHP_EOL, $config->get('url_patterns_to_ignore')) as $value) {
@@ -55,7 +56,7 @@ function quicklink_preprocess_html(&$variables, $hook) {
     }
   }
 
-  // Check for "Ignore Hashes" option
+  // Check for "Ignore Hashes" option.
   if ($config->get('ignore_hashes') == 1) {
     $url_patterns_to_ignore[] = '#';
     $debug_log[] = 'Quicklink will ignore URLs with hashes(#).';
@@ -68,9 +69,26 @@ function quicklink_preprocess_html(&$variables, $hook) {
     $debug_log[] = 'Quicklink will ignore admin URL patterns.';
   }
 
-  // If user is logged in AND "Prefetch for anonymous users only" is selected, do not load library.
+  // Check for "Content Types" option.
+  $node = \Drupal::request()->attributes->get('node');
+
+  if (!empty($node)) {
+    $node_type = $node->bundle();
+    $config = \Drupal::config('quicklink.settings');
+    $ignored_content_types = !empty($config->get('ignored_content_types')) ? $config->get('ignored_content_types') : FALSE;
+
+    if (is_array($ignored_content_types)) {
+      if (in_array($node_type, $ignored_content_types)) {
+        $load_library = FALSE;
+        $debug_log[] = 'Library not loaded because content type ' . $node_type . ' is ignored.';
+      }
+    }
+  }
+
+  // If user is logged in AND "Prefetch for anonymous users only" is selected,
+  // do not load library.
   if ($variables['logged_in'] && $config->get('prefetch_for_anonymous_users_onl') == 1) {
-    $load_library = false;
+    $load_library = FALSE;
     $debug_log[] = 'Library not loaded because user is authenticated.';
   }
 
@@ -82,7 +100,7 @@ function quicklink_preprocess_html(&$variables, $hook) {
 
   if (!empty($selector)) {
     $variables['#attached']['drupalSettings']['quicklink']['selector'] = $selector;
-    $debug_log[] = 'Selector for Quicklink to parse: '. $selector;
+    $debug_log[] = 'Selector for Quicklink to parse: ' . $selector;
   }
 
   if (!empty($allowed_domains[0])) {
@@ -105,6 +123,7 @@ function quicklink_preprocess_html(&$variables, $hook) {
   }
 
   if ($debug) {
+    $variables['#attached']['drupalSettings']['quicklink']['debug'] = 1;
     $variables['#attached']['library'][] = 'quicklink/quicklink_debug';
     $variables['#attached']['drupalSettings']['quicklink']['debug_log'] = $debug_log;
   }
