@@ -95,7 +95,7 @@ Safari, Edge
 ## How to ignore certain links.
 
 You can tell Quicklink to ignore certain links by adding them into the ignore
-list at `admin/config/quicklink/quicklinkconfig`.
+list at `admin/config/development/performance/quicklink`.
 
 In addition, you can add a `noprefetch` attribute onto the `<a>` tag to tell
 the library not to prefetch this link.
