@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Install hooks for the resource hints module.
+ */
+
+ /**
+  * Implements hook_uninstall().
+  */
+function quicklink_uninstall() {
+  // Delete 'old' config.
+  \Drupal::service('config.factory')
+    ->getEditable('quicklink.quicklink_config')
+    ->delete();
+  // Delete 'new' config.
+  \Drupal::service('config.factory')
+    ->getEditable('quicklink.settings')
+    ->delete();
+}
