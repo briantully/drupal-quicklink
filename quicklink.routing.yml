@@ -1,7 +1,7 @@
-quicklink.quicklink_config:
-  path: '/admin/config/quicklink'
+quicklink.settings:
+  path: 'admin/config/development/performance/quicklink'
   defaults:
-    _form: '\Drupal\quicklink\Form\QuicklinkConfig'
+    _form: '\Drupal\quicklink\Form\QuicklinkConfigForm'
     _title: 'Quicklink Configuration'
   requirements:
     _permission: 'administer site configuration'

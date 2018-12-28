@@ -1,6 +1,6 @@
-quicklink.quicklink_config:
+quicklink.settings:
   title: 'Quicklink Configuration'
-  route_name: quicklink.quicklink_config
+  parent: system.performance_settings
   description: 'Pass configuration to the Quicklink library to prefetch links.'
-  parent: system.admin_config_development
+  route_name: quicklink.settings
   weight: 99
